@@ -3,17 +3,22 @@ package main
 import (
 	"net/http"
 
-	"github.com/bmizerany/pat"
+	//"github.com/bmizerany/pat"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/middleware"
 	"github.com/housecham/FirstWebApp/pkg/config"
 	"github.com/housecham/FirstWebApp/pkg/handlers"
 )
 
 func routes(app *config.AppConfig) http.Handler {
-	mux := pat.New()
 
-	// Routes setup
-	mux.Get("/", http.HandlerFunc(handlers.Repo.Home))       // Home()
-	mux.Get("/about", http.HandlerFunc(handlers.Repo.About)) // About()
+	mux := chi.NewRouter()
+
+	// CHI middlewares
+	mux.Use(middleware.Recoverer)
+
+	mux.Get("/", handlers.Repo.Home)
+	mux.Get("/about", handlers.Repo.About)
 
 	return mux
 }

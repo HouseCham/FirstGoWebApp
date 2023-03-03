@@ -6,18 +6,25 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
 	"github.com/housecham/FirstWebApp/pkg/config"
+	"github.com/housecham/FirstWebApp/pkg/models"
 )
 
 // NewTemplates sets the config for the template package
 var app *config.AppConfig
-func NewTemplates(a *config.AppConfig){
+
+func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
+func AddDefaultData(templateData *models.TemplateData) *models.TemplateData{
+	return templateData
+}
+
 // Render templates using HTML templates
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	
+func RenderTemplate(w http.ResponseWriter, tmpl string, templateData *models.TemplateData) {
+
 	var tc map[string]*template.Template
 	if app.UseCache {
 		// get the template cache from the app config
@@ -34,7 +41,8 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 
 	buf := new(bytes.Buffer)
 
-	_ = t.Execute(buf, nil)
+	templateData = AddDefaultData(templateData)
+	_ = t.Execute(buf, templateData)
 
 	// render the template
 	_, err := buf.WriteTo(w)
@@ -43,7 +51,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func CreateTemplateCache() (map[string]*template.Template, error){
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	myCache := map[string]*template.Template{}
 
 	// get all of the files named *.page.html from ./templates
@@ -61,7 +69,7 @@ func CreateTemplateCache() (map[string]*template.Template, error){
 		if err != nil {
 			return myCache, err
 		}
-		
+
 		// look for layout.html files
 		matches, err := filepath.Glob("./templates/*.layout.html")
 		if err != nil {

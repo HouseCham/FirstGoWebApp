@@ -16,6 +16,9 @@ func routes(app *config.AppConfig) http.Handler {
 
 	// CHI middlewares
 	mux.Use(middleware.Recoverer)
+	
+	// using my own middlewares
+	mux.Use(NoSurf)
 
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
